@@ -15,8 +15,9 @@ import TagInput from "../components/TagInput";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { db, auth } from "../../firebaseConfig";
 import Buttons from "../components/Buttons";
+import { Entypo } from "@expo/vector-icons";
 
-const AddPatientDetails = () => {
+const AddPatientDetails = ({ navigation }) => {
   // State variables
   const [selectedOption, setSelectedOption] = useState("male"); // selected gender option
   const [show, setShow] = useState(false); // boolean to show/hide date picker
@@ -126,7 +127,46 @@ const AddPatientDetails = () => {
   return (
     <>
       <Background />
+      <TouchableOpacity
+        style={{
+          marginTop: 30,
+          marginLeft: 10,
+          position: "absolute",
+          zIndex: 1,
+        }}
+        onPress={() => {
+          navigation.navigate("Home");
+        }}
+      >
+        <Entypo name="back" size={30} color="white" />
+      </TouchableOpacity>
       <SafeAreaView style={styles.container}>
+        <Image
+          source={require("../assets/images/logo.png")}
+          style={{
+            alignSelf: "center",
+            margin: 5,
+            position: "absolute",
+            bottom: 630,
+            height: 70,
+            width: 200,
+          }}
+        />
+        {/* <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "700",
+            color: "#ffffff",
+            alignSelf: "center",
+            borderBottomWidth: 2,
+            borderBottomColor: "#ffffff",
+            margin: 5,
+            position: "absolute",
+            bottom: 650,
+          }}
+        >
+          HealthTrack
+        </Text> */}
         <Text style={styles.formHeading}>Add Patient Detail</Text>
         <SafeAreaView style={styles.wrapper}>
           <View style={styles.form}>

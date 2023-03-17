@@ -14,8 +14,10 @@ import React from "react";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { auth, db } from "../../firebaseConfig";
 import { ref, remove } from "firebase/database";
+import { useNavigation } from "@react-navigation/native";
 
 const PatientList = ({ item }) => {
+  const navigation = useNavigation();
   const deletePatient = async (patientId) => {
     try {
       const currentUser = auth.currentUser.uid;
@@ -49,7 +51,6 @@ const PatientList = ({ item }) => {
           color="#006FFE"
           style={{
             marginRight: 15,
-
             paddingLeft: 15,
           }}
         />

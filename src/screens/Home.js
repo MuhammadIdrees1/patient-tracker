@@ -10,10 +10,12 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import firebase from "firebase/compat";
-import { auth } from "../../firebaseConfig";
+import { auth, db } from "../../firebaseConfig";
 import { TouchableOpacity } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import PatientList from "../components/PatientList";
+import Buttons from "../components/Buttons";
+import { ref, onValue } from "firebase/database";
 
 const Home = () => {
   const [data, setData] = useState([]);
@@ -21,6 +23,7 @@ const Home = () => {
   const [searchWithDate, setSearchWithDate] = useState("");
   const [searchWithName, setSearchWithName] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [userInfo, setUserInfo] = useState({});
 
   // console.log("hey");
 
@@ -58,12 +61,6 @@ const Home = () => {
     setSearchWithDate("");
   };
 
-  const clearSearch = () => {
-    // clear search results and search with date string
-    setSearchWithName("");
-    setSearchResults(data);
-  };
-
   const handleSearch = (text) => {
     // set search with name string
     setSearchWithName(text);
@@ -74,10 +71,22 @@ const Home = () => {
     // set search results to filtered data
     setSearchResults(results);
   };
-
+  const clearSearch = () => {
+    // clear search results and search with date string
+    setSearchWithName("");
+    setSearchResults(data);
+  };
   useEffect(() => {
     // fetch data when component mounts
     fetchData();
+
+    const currentUser = firebase.auth().currentUser.uid;
+
+    const starCountRef = ref(db, "user/" + currentUser);
+    onValue(starCountRef, (snapshot) => {
+      const data = snapshot.val();
+      setUserInfo(data);
+    });
   }, []);
 
   const fetchData = () => {
@@ -100,7 +109,9 @@ const Home = () => {
           setData(patients);
         });
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const renderData = () => {
@@ -110,7 +121,7 @@ const Home = () => {
         <FlatList
           showsVerticalScrollIndicator={false}
           data={searchResults}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => <PatientList item={item} />}
         />
       );
@@ -121,7 +132,7 @@ const Home = () => {
         <View style={{ alignSelf: "center", marginTop: 10 }}>
           <Text style={{ color: "red", fontSize: 16 }}>Nothing found.</Text>
           <View style={{ width: 200 }}>
-            <Button title="Clear search" onPress={() => clearSearch()} />
+            <Buttons btn_text={"Clear Search"} on_press={() => clearSearch()} />
           </View>
         </View>
       );
@@ -134,7 +145,10 @@ const Home = () => {
             No results found for {searchWithDate}.
           </Text>
           <View style={{ width: 200 }}>
-            <Button title="Clear search" onPress={() => handleClearSearch()} />
+            <Buttons
+              btn_text={"Clear search"}
+              on_press={() => handleClearSearch()}
+            />
           </View>
         </View>
       );
@@ -185,30 +199,30 @@ const Home = () => {
             height: 100,
             width: 300,
             marginHorizontal: 30,
-            marginVertical: 30,
+            marginTop: 10,
+            marginBottom: 30,
           }}
         >
-          <Text
+          <Image
+            source={require("../assets/images/logo.png")}
             style={{
-              fontSize: 20,
-              fontWeight: "700",
-              color: "#ffffff",
               alignSelf: "center",
-              borderBottomWidth: 2,
-              borderBottomColor: "#ffffff",
+              height: 70,
+              width: 200,
+              marginTop: 20,
+              marginBottom: 5,
             }}
-          >
-            HealthTrack
-          </Text>
+          />
+
           <Text
             style={{
               fontSize: 30,
               fontWeight: "700",
               color: "#ffffff",
-              marginTop: 30,
+              marginTop: 2,
             }}
           >
-            Hello
+            Hello {userInfo.name}!
           </Text>
           <Text
             style={{
@@ -228,6 +242,7 @@ const Home = () => {
             onChangeText={handleSearch}
             value={searchWithName}
             maxLength={30}
+            onClear={clearSearch}
           />
           <TouchableOpacity onPress={showDatePicker}>
             <MaterialIcons
@@ -256,6 +271,7 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fcfcfc",
+    // backgroundColor: "#ffffff",
   },
   Image: {
     height: 200,
@@ -263,7 +279,8 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     marginTop: 30,
-    height: 430,
+    height: 500,
+    paddingBottom: 60,
   },
   searchBar: {
     backgroundColor: "#ffffff",

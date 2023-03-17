@@ -69,7 +69,7 @@ const Onboarding = ({ navigation }) => {
           <View style={{ width: "50%" }}>
             <Buttons
               btn_text={"Get Started"}
-              on_press={() => navigation.replace("Signup")}
+              on_press={() => navigation.navigate("Signup")}
             />
           </View>
         </View>

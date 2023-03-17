@@ -9,37 +9,27 @@ import {
   Button,
   TextInput,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Background from "../components/Background";
 import { Entypo } from "@expo/vector-icons";
 import { auth, db } from "../../firebaseConfig";
-import { ref, update } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 
 import firebase from "firebase/compat";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Buttons from "../components/Buttons";
 
 const PatientDetail = ({ navigation, route }) => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [qualification, setQualification] = useState("");
-  const [age, setAge] = useState();
-  const [experience, setExperience] = useState("");
-  // const userId = auth.currentUser.uid;
-
-  // const updateUser = () => {
-  //   const userRef = ref(db, `user/${userId}`);
-  //   update(userRef, {
-  //     age: age,
-  //     experience: experience,
-  //     qualification: qualification,
-  //   })
-  //     .then(() => {
-  //       console.log("User updated successfully");
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error updating user: ", error);
-  //     });
-  // };
+  const [userInfo, setUserInfo] = useState({});
+  const userId = auth.currentUser.uid;
+  useEffect(() => {
+    const starCountRef = ref(db, "user/" + userId);
+    onValue(starCountRef, (snapshot) => {
+      const data = snapshot.val();
+      setUserInfo(data);
+    });
+  }, []);
+  console.log(userInfo);
 
   // Define function to handle logout
   const handleLogout = () => {
@@ -60,7 +50,7 @@ const PatientDetail = ({ navigation, route }) => {
     <Background>
       <TouchableOpacity
         style={{
-          marginTop: 20,
+          marginTop: 50,
           marginLeft: 10,
           position: "absolute",
           zIndex: 1,
@@ -76,12 +66,12 @@ const PatientDetail = ({ navigation, route }) => {
           <Text style={styles.heading}>Profile Info</Text>
           <SafeAreaView style={styles.detailContainer}>
             <Text style={styles.infoText}>
-              <Text style={styles.label}>Name:</Text>
-              {/* {auth.currentUser.displayName} */}
+              <Text style={styles.label}>Name: </Text>
+              {userInfo.name}
             </Text>
             <Text style={styles.infoText}>
-              <Text style={styles.label}>Email:</Text>
-              {/* {auth.currentUser.email} */}
+              <Text style={styles.label}>Email: </Text>
+              {userInfo.email}
             </Text>
             <View style={styles.buttonWrapper}>
               <Buttons btn_text={"Logout"} on_press={handleLogout} />
@@ -102,88 +92,6 @@ const PatientDetail = ({ navigation, route }) => {
             }}
           />
         </View>
-
-        {/* <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-            setModalVisible(!modalVisible);
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "white",
-              padding: 20,
-              height: 500,
-              marginHorizontal: 20,
-              marginTop: 100,
-              justifyContent: "center",
-              elevation: 3,
-              borderRadius: 30,
-            }}
-          >
-            <Text
-              style={{ textAlign: "center", fontSize: 25, fontWeight: "600" }}
-            >
-              Update Profile
-            </Text>
-            <TextInput
-              placeholder="Name"
-              placeholderTextColor={"#0268FF"}
-              style={[styles.input]}
-              value={auth.currentUser.displayName}
-              editable={false}
-            />
-            <TextInput
-              placeholder="Email"
-              placeholderTextColor={"#0268FF"}
-              style={[styles.input]}
-              value={auth.currentUser.email}
-              editable={false}
-            />
-            <View style={[styles.inputGroup]}>
-              <TextInput
-                placeholder="Age"
-                placeholderTextColor={"#0268FF"}
-                style={[styles.input, { width: 130, marginRight: 15 }]}
-                value={age}
-                onChangeText={(text) => setAge(text)}
-                keyboardType="numeric"
-              />
-              <TextInput
-                placeholder="Experience"
-                placeholderTextColor={"#0268FF"}
-                style={[styles.input, { width: 130 }]}
-                value={experience}
-                onChangeText={(text) => setExperience(text)}
-                keyboardType="numeric"
-              />
-            </View>
-            <TextInput
-              placeholder="Qualification"
-              placeholderTextColor={"#0268FF"}
-              style={[styles.input]}
-              value={qualification}
-              onChangeText={(text) => setQualification(text)}
-              // keyboardType="numeric"
-            />
-            <Button
-              title="Update"
-              onPress={() => {
-                updateUser;
-                setModalVisible(updateUser);
-              }}
-            />
-            <Button
-              title="Close Modal"
-              onPress={() => {
-                setModalVisible(!modalVisible);
-              }}
-            />
-          </View>
-        </Modal> */}
       </SafeAreaView>
     </Background>
   );
@@ -196,6 +104,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 30,
   },
   wrapper: {
     height: "60%",

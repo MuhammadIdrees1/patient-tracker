@@ -4,6 +4,9 @@ import firebase from "firebase/compat/app";
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { getDatabase } from "firebase/database";
 import { getAuth } from "firebase/auth";
+import { initializeAuth } from "firebase/auth";
+import { getReactNativePersistence } from "firebase/auth/react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -17,7 +20,13 @@ const firebaseConfig = {
 
 if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig);
+
+  const defaultApp = firebase.initializeApp(firebaseConfig);
+  initializeAuth(defaultApp, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
 }
+
 const db = getDatabase();
 const auth = getAuth();
 export { db, auth };
